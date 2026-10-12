@@ -1,3 +1,4 @@
+#include <linux/version.h> /* LINUX_VERSION_CODE, KERNEL_VERSION macros */
 #include <linux/completion.h>
 #include <linux/cred.h>
 #include <linux/jump_label.h>
@@ -9,7 +10,6 @@
 #include <linux/sched/user.h>
 #endif
 #include <linux/user_namespace.h>
-#include <linux/version.h>
 #include <linux/workqueue.h>
 
 #include "compat/jailbreak.h"
