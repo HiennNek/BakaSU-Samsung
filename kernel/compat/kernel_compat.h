@@ -143,12 +143,13 @@ static_assert(1 == 0, "Unsupported architecture!");
 */
 
 // Checks for UH, KDP and RKP
-#ifdef SAMSUNG_UH_DRIVER_EXIST
-#if defined(CONFIG_UH) || defined(CONFIG_KDP) || defined(CONFIG_RKP)
-#error                                                                                                                 \
-    "CONFIG_UH, CONFIG_KDP and CONFIG_RKP is enabled! Please disable or remove it before compile a kernel with KernelSU!"
-#endif
-#endif
+//
+// Older KernelSU forks hard-failed the build here because Samsung's
+// security extensions (KDP/RKP/DEFEX) break the usual text-patching and
+// credential handling. We now cope with them at runtime through
+// compat/jailbreak.c (KDP cred handling, RKP rodata/branch workarounds and
+// DEFEX neutralisation), so kernels with CONFIG_KDP/CONFIG_RKP enabled are
+// no longer rejected. See kernel/compat/{kdp,rkp,defex}.c.
 
 extern long ksu_strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr, long count);
 

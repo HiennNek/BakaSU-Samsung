@@ -36,6 +36,7 @@
 #include "feature/sucompat.h"
 #include "feature/selinux_hide.h"
 #include "infra/symbol_resolver.h"
+#include "compat/jailbreak.h"
 
 #ifdef CONFIG_ARM64
 #include "compat/apatch_conflict.h"
@@ -226,13 +227,15 @@ int __init kernelsu_init(void)
     ksu_start_apatch_conflict_check();
 #endif
 
+    ksu_init_symbol_resolver();
+    init_jailbreak();
+
     ksu_cred = prepare_creds();
     if (!ksu_cred) {
         pr_err("prepare cred failed!\n");
         return -ENOSYS;
     }
 
-    ksu_init_symbol_resolver();
     ksu_selinux_init();
     ksu_feature_init();
     ksu_sulog_init();
@@ -322,7 +325,8 @@ void __exit kernelsu_exit(void)
     ksu_feature_exit();
     ksu_module_load_filter_hook_exit();
 
-    put_cred(ksu_cred);
+    exit_jailbreak();
+    ksu_put_cred(ksu_cred);
 }
 
 #if NEED_OWN_STACKPROTECTOR

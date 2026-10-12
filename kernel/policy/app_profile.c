@@ -28,6 +28,7 @@
 #include "policy/app_profile.h"
 #include "arch.h"
 #include "compat/kernel_compat.h"
+#include "compat/jailbreak.h"
 #include "klog.h" // IWYU pragma: keep
 #include "selinux/selinux.h"
 #include "infra/su_mount_ns.h"
@@ -244,8 +245,11 @@ int escape_with_root_profile(void)
     setup_groups(profile, cred);
     setup_selinux(profile->selinux_domain, cred);
 
-    commit_creds(cred);
-
+    ret = ksu_commit_creds(cred);
+    if (ret) {
+        pr_err("ksu_commit_creds failed: %d\n", ret);
+        goto out_abort_creds;
+    }
     disable_seccomp();
 
     if (profile->flags & FLAG_KSU_NO_NEW_PRIVS) {

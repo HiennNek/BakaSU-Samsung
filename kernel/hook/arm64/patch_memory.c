@@ -12,6 +12,7 @@
 #include "linux/uaccess.h"
 #include "linux/stop_machine.h"
 #include "asm/cacheflush.h"
+#include "compat/jailbreak.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
 #include <asm-generic/fixmap.h>
@@ -345,6 +346,9 @@ static int ksu_patch_text_cb(void *arg)
 
 int ksu_patch_text(void *dst, void *src, size_t len, int flags)
 {
+    if (static_branch_unlikely(&ksu_rkp_key) && len == sizeof(void *))
+        return ksu_rkp_branch_patch(dst, src);
+
     struct patch_text_info info = {
         .dst = dst,
         .src = src,
